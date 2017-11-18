@@ -1,0 +1,28 @@
+# ChangeWeather drink by Vlek
+
+# This script is used to toggle between four different weather states:
+# Sunny, Drizzle, Rain, and Storm.
+
+var Wea = Connect("LargeComputerL2_TheLodge_ComputerTerminal_LargeComputerL1")
+
+number ReadHumidity()
+    # This was taken from a weather terminal, and it seemed really useful.
+    # Returns humidity in % between 0 - 100
+    return (Wea.GetRain() / 250.0) * 100
+end
+
+number humidity = ReadHumidity()
+
+if humidity < 25
+    # Drizzle
+    Wea.SetRain(25)
+else if humidity < 50
+    # Rain
+    Wea.SetRain(100)
+else if humidity < 75
+    # Storm
+    Wea.SetRain(200)
+else
+    # Sunny
+    Wea.SetRain(0)
+end
