@@ -1,0 +1,14 @@
+
+Sleepiness(-100)
+Speed(200)
+Charisma(500)
+Smelliness(-100)
+
+var sink = Connect("Hotel_Diner_Poor_WaterTap_Poor_WaterTap_4")
+RemoteFunctionCall(sink, "SetLiquidAmount", [901])
+#sink.SetLiquidAmount(5000)
+
+# This isn't necessary, but I found it really useful in the beginning
+# It just prints out the room name above the character's head after
+# they drink the soda.
+Say(GetRoom())
