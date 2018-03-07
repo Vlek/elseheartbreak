@@ -1,0 +1,233 @@
+################
+# Util Library #
+# By Vlek      #
+################
+
+string GetUtilObj()
+    # This helper function returns the object that you're using as the Util library
+    # Of course set this to whatever you are actually using.
+    return "Testing_Beer_1"
+end
+
+string GetCompObj()
+    # This is just a random computer in the world. We need it for some computer functions
+    # that aren't available if we have our util library in a drink. I like to keep it as a
+    # drink because then it's portable and I can edit it on the fly if I need to.
+    return "CentralServer"
+end
+
+void Recharge(string target)
+    var Heart = Connect("Heart")
+    Heart.SetNumericData(target, "sleepiness", 0)
+    Heart.SetNumericData(target, "charisma", 200)
+    Heart.SetNumericData(target, "smelliness", 0)
+    Heart.SetNumericData(target, "speed", 200)
+    Heart.SetNumericData(target, "corruption", 0)
+end
+
+void Unlock(string target)
+    var Hugin = Connect("Hugin")
+    var Police = Connect("PoliceOfficeInterior_MinistryOfficeWorkstationComputer_1")
+    if Police.GetTypeOfThing(target) == "door"
+        # Todo: Add some sort of "Unlocked!" message on top of the door.
+        # Worst case ontario, I might have to teleport a freaking computer
+        # on top of the target door, have it say it, and then teleport it back.
+        #   - This would be an interesting case because, if I exit out of the modifier,
+        #     I wonder if it will still follow through with the rest of the script to put
+        #     the computer back if I don't stay in the editor that long. My guess is that
+        #     it will work. Nothing seems to work how you'd expect though.
+        Hugin.Unlock(target)
+    end
+end
+
+void RuinDayOf(string target)
+    var Heart = Connect("Heart")
+    
+    Heart.SetNumericData(target, "sleepiness", 100)
+    Heart.SetNumericData(target, "charisma", 0)
+    Heart.SetNumericData(target, "smelliness", 100)
+    Heart.SetNumericData(target, "speed", 0)
+    Heart.ZapPersonGently(target)
+end
+
+void ZapPeopleInCurrentRoom()
+    
+    # This unfortunately will not put the computer back where it's supposed to be
+    # how you'd expect. It is there, but it's invisible.
+    var Police = Connect("PoliceOfficeInterior_MinistryOfficeWorkstationComputer_1")
+
+    array PeopleToZap = []
+
+    loop obj in Police.GetThingsInRoom(Police.GetRoom("Sebastian"))
+        if Police.GetTypeOfThing(obj) == "character" and obj != "Sebastian"
+            Append(PeopleToZap, obj)
+        end
+    end
+    
+    ZapAll(PeopleToZap)
+end
+
+void ZapAll(array people)
+    string zap_computer = "Hotel_ServerBasement_LargeRecorder_LargeRecorder_2"
+    string util_computer = GetUtilObj()
+
+    var Heart = Connect("Heart")    
+    var Zap = Connect(zap_computer)
+    
+    Heart.SetPosition(util_computer, zap_computer)
+    Heart.SetPosition(zap_computer, "Sebastian")
+    
+    loop p in people
+        # If we don't set the person's sleepiness to 100, then they get up in 
+        # a few seconds. This keeps them down for longer.
+        Heart.SetNumericData(p, "sleepiness", 100)
+        Zap.ZapPerson(p)
+    end
+    
+    Heart.SetPosition(zap_computer, util_computer)
+    Heart.SetPosition(util_computer, "SebastianCreditCard")
+end
+
+void Zap(string person)
+    ZapAll([person])
+end
+
+void GotoNearestDoor(string target)
+    var Police = Connect("PoliceOfficeInterior_MinistryOfficeWorkstationComputer_1")
+    loop obj in Police.GetThingsInRoom(Police.GetRoom(target))
+        if Police.GetTypeOfThing(obj) == "door"
+            # This unfortunately doesn't work. Have to find another way!
+            #Door_Goto(obj)
+            break
+        end
+    end
+end
+
+void SetPosition(string object, string target)
+    var Police = Connect("PoliceOfficeInterior_MinistryOfficeWorkstationComputer_1")
+    Police.SetPosition(object, target)
+end
+
+string StringSlice(string str, number i, string e)
+    string result = ""
+    loop
+        if str[i] == e
+            break
+        else
+            result += str[i]
+        end
+        i++
+    end
+    return result
+end
+
+number StringContains(string haystack, string needle)
+    number result = -1
+    loop h in haystack
+        result++
+        if h == needle
+            return result
+        end
+    end
+    return -1
+end
+
+void CopyToClipboard(string s)
+    var Extractor = Connect("Hotel_ServerBasement_Extractor_1")
+    Extractor.CopyToClipboard(s)
+end
+
+array GetPosition(string r)
+    # This one is superior to the built-in GetPosition in that the vanilla version
+    # returns a formatted string of information. This gets that information, parses it,
+    # and returns a usable array of [room, x, y].
+    var Heart = Connect("Heart")
+    var position = Heart.GetPosition(r)
+    string room = StringSlice(position, 6, ",")
+    string x = StringSlice(position, 21 + Count(room), ",")
+    string y = StringSlice(position, 22 + Count(room) + Count(x), ")")
+    return [room, StrToInt(x), StrToInt(y)]
+end
+
+void TeleportTo(string target)
+    TeleportXToY("Sebastian", target)
+end
+
+void TeleportXToY(string target1, string target2)
+    # This appears to work for the most part. The server that I'm using to zap appears
+    # to disappear, but I guess I'm going to have to live with that for now.
+    string zap_computer = "Hotel_ServerBasement_LargeRecorder_LargeRecorder_2"
+    string util_computer = GetUtilObj()
+
+    var Heart = Connect("Heart")    
+    var Zap = Connect(zap_computer)
+
+    Heart.SetPosition(util_computer, zap_computer)
+    Heart.SetPosition(zap_computer, target1)
+    
+    Zap.MovePerson(target1, target2)
+    
+    Heart.SetPosition(zap_computer, util_computer)
+    Heart.SetPosition(util_computer, "SebastianCreditCard")
+end
+
+void SlurpFrom(c)
+    # Instead of going through the hassle of connecting, slurping, selecting where you want to
+    # go in the list of options, waiting for the slow thing to make its way there, and then pressing
+    # 'q' in order to escape the internet, we're just going to connect to the computer we want to go
+    # to and then Slurp from there. That way it brings up the internet and we hit 'q' and we're done.
+    # Unfortunately, this only works on other computers, but it is much faster when that's what you want.
+    var Conn = Connect(c)
+    Conn.Slurp()
+end
+
+number StrToInt(s)
+    var Comp = Connect(GetCompObj())
+    number result = 0
+    number currNumber = 0
+    bool neg = False
+    number nums = Count(s) - 1
+    loop i in s 
+        if i == "-"
+            neg = True
+        else
+            # I don't get it, but CharToInt("0") == -48
+            currNumber = Comp.CharToInt(i) + 49
+            if nums != 0
+                currNumber *= Pow(10, nums)
+            end
+            result += currNumber
+        end
+        nums--
+    end
+    if neg
+        result *= -1
+    end
+    return result
+end
+
+number Pow(n, e)
+    number r = 1
+    loop i from 0 to e - 1
+        r *= n
+    end
+    return r
+end
+
+string ToLowercase(var text)
+    var Comp = Connect(GetCompObj())
+    string res = ""
+    loop c in text
+        if IsUppercase(c)
+            res += Comp.IntToChar(Comp.CharToInt(c) + 32)
+        else
+            res += c
+        end
+    end
+    return res
+end
+
+bool IsUppercase(var c)
+    var Comp = Connect(GetCompObj())
+    return Comp.CharToInt(c) >= -32 && Comp.CharToInt(c) <= -7
+end
