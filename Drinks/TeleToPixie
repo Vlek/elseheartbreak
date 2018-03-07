@@ -1,0 +1,10 @@
+
+# Probably one of the most useful things I've made. Almost every quest
+# in the game has a hook based on the time and whether you met Pixie
+# at that specific time. This was nice because I could do whatever it
+# was I was doing, notice the time, and drink this to almost always
+# be at the right place at the right time.
+
+var Util = Connect("Testing_Beer_1")
+
+Util.TeleportTo("Pixie")
