@@ -1,0 +1,18 @@
+##############
+# Master Key #
+##############
+
+
+# This script allows everything in the game to be modified, also
+# if what you're modifying is a door, then it will try to unlock
+# it. No matter what is modified, it will top off Sebastian's vitals.
+
+bool Allow(string target, number level)
+    # The actual computer (or coffee or whatever) doesn't matter, what matters
+    # is that this util stuff is placed somewhere and we know where it is.
+    var Util = Connect("Testing_Beer_1")
+    Util.Recharge("Sebastian")
+    Util.Unlock(target)
+
+    return True
+end
