@@ -1,0 +1,4 @@
+
+var Util = Connect("Testing_Beer_1")
+
+Util.ZapPeopleInCurrentRoom()
