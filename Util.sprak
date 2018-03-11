@@ -29,14 +29,9 @@ void Unlock(string target)
     var Hugin = Connect("Hugin")
     var Police = Connect("PoliceOfficeInterior_MinistryOfficeWorkstationComputer_1")
     if Police.GetTypeOfThing(target) == "door"
-        # Todo: Add some sort of "Unlocked!" message on top of the door.
-        # Worst case ontario, I might have to teleport a freaking computer
-        # on top of the target door, have it say it, and then teleport it back.
-        #   - This would be an interesting case because, if I exit out of the modifier,
-        #     I wonder if it will still follow through with the rest of the script to put
-        #     the computer back if I don't stay in the editor that long. My guess is that
-        #     it will work. Nothing seems to work how you'd expect though.
+        var Door = Connect(target)
         Hugin.Unlock(target)
+        Door.Say("Unlocked!")
     end
 end
 
